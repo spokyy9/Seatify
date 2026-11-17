@@ -1,16 +1,26 @@
-# React + Vite
+# Seatify
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Seatify is a movie-ticket booking app with a React/Vite frontend and an Express/MySQL API.
 
-Currently, two official plugins are available:
+## Repository branches
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `main` — complete application; use this branch for development and deployment.
+- `frontend` — frontend only, with the Vite project at the repository root.
+- `backend` — backend only, with the Express API at the repository root.
 
-## React Compiler
+## Run `main` locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Copy `backend/.env.example` to `backend/.env` and set your MySQL details. Do not commit this file.
+2. Copy `frontend/.env.example` to `frontend/.env`.
+3. Run `npm install` at the repository root.
+4. Run `npm run dev` to start both services.
 
-## Expanding the ESLint configuration
+The frontend runs at `http://localhost:5173`; the API runs at `http://localhost:5000`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Deploy
+
+Deploy the frontend from `frontend/` with `npm run build`. At build time, set `VITE_API_URL` to the public API URL.
+
+Deploy the backend from `backend/` with `npm start`. Set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and `CORS_ORIGIN` in the host's private environment settings. Set `CORS_ORIGIN` to the deployed frontend URL.
+
+Never commit real passwords, database dumps, or `.env` files.

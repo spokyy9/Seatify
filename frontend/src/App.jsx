@@ -8,6 +8,7 @@ import CheckoutPage from './Checkout'; // Check if file is Checkout.jsx or Check
 import BookingsPage from './BookingPage';
 import ResalePage from './ResalePage';
 import AdminPage from './xyz'; 
+
 // ─── MOCK DATA ───────────────────────────────────────────────────────────────
 const MOVIES = [
   { id: 1, title: "Interstellar Odyssey", genre: "Sci-Fi", language: "English", duration: 169, rated: "UA", rating: 9.1, poster: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=80", banner: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&q=80", desc: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival." },
@@ -50,18 +51,17 @@ const generateSeats = () => {
   rows.forEach((row, ri) => {
     for (let n = 1; n <= 12; n++) {
       const isPremium = ri < 3;
-      const isBooked = Math.random() < 0.25;
-      seats.push({ id: `${row}${n}`, row, num: n, type: isPremium ? "Premium" : "Regular", status: isBooked ? "booked" : "available" });
+      seats.push({ id: `${row}${n}`, row, num: n, type: isPremium ? "Premium" : "Regular", status: "available" });
     }
   });
   return seats;
 };
 
 const RESALE_LISTINGS = [
-  { id: "r1", movieTitle: "Interstellar Odyssey", theatre: "Seatify IMAX", date: "05 Apr 2026", time: "06:30 PM", seat: "C7", type: "Premium", askingPrice: 280, originalPrice: 320, seller: "Rahul M.", listedAt: "2 hours ago", status: "available" },
-  { id: "r2", movieTitle: "Crimson Shadows", theatre: "StarPlex Premium", date: "06 Apr 2026", time: "09:45 PM", seat: "E4", type: "Regular", askingPrice: 150, originalPrice: 180, seller: "Priya K.", listedAt: "5 hours ago", status: "available" },
-  { id: "r3", movieTitle: "The Last Frontier", theatre: "Galaxy Cinema", date: "05 Apr 2026", time: "03:15 PM", seat: "B9", type: "Premium", askingPrice: 300, originalPrice: 380, seller: "Arjun S.", listedAt: "1 day ago", status: "available" },
-  { id: "r4", movieTitle: "Velvet Dreams", theatre: "Seatify IMAX", date: "07 Apr 2026", time: "12:45 PM", seat: "F11", type: "Regular", askingPrice: 160, originalPrice: 180, seller: "Sneha R.", listedAt: "3 hours ago", status: "available" },
+  { id: "r1", movieTitle: "Interstellar Odyssey", theatre: "Seatify IMAX", date: "05 Apr 2026", time: "06:30 PM", seat: "C7", type: "Premium", askingPrice: 280, originalPrice: 320, seller: "Rahul M.", listedAt: "2 hours ago", status: "available", poster: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=400&q=80" },
+  { id: "r2", movieTitle: "Crimson Shadows", theatre: "StarPlex Premium", date: "06 Apr 2026", time: "09:45 PM", seat: "E4", type: "Regular", askingPrice: 150, originalPrice: 180, seller: "Priya K.", listedAt: "5 hours ago", status: "available", poster: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400&q=80" },
+  { id: "r3", movieTitle: "The Last Frontier", theatre: "Galaxy Cinema", date: "05 Apr 2026", time: "03:15 PM", seat: "B9", type: "Premium", askingPrice: 300, originalPrice: 380, seller: "Arjun S.", listedAt: "1 day ago", status: "available", poster: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=400&q=80" },
+  { id: "r4", movieTitle: "Velvet Dreams", theatre: "Seatify IMAX", date: "07 Apr 2026", time: "12:45 PM", seat: "F11", type: "Regular", askingPrice: 160, originalPrice: 180, seller: "Sneha R.", listedAt: "3 hours ago", status: "available", poster: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=400&q=80" },
 ];
 
 // ─── STYLES ──────────────────────────────────────────────────────────────────
@@ -188,8 +188,21 @@ const style = `
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Restore user from localStorage on app mount
+    const saved = localStorage.getItem('seatifyUser');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [page, setPage] = useState("home");
+
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('seatifyUser', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('seatifyUser');
+    }
+  }, [user]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedShow, setSelectedShow] = useState(null);
   const [checkoutData, setCheckoutData] = useState(null);
@@ -211,6 +224,7 @@ export default function App() {
       seller: user?.name || "You",
       listedAt: "just now",
       status: "available",
+      poster: booking.movie.poster || "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=400&q=80",
     };
     setResaleListings(prev => [listing, ...prev]);
   };
@@ -227,22 +241,22 @@ export default function App() {
           <Navbar page={page} setPage={setPage} user={user} setUser={setUser} />
           
           {/* 1. Add the Admin Page back in */}
-          {page === "admin" && <AdminPage setPage={setPage} />}
+          {page === "admin" && <AdminPage setPage={setPage} user={user} />}
           
           {/* 2. Pass MOVIES to HomePage */}
-          {page === "home" && <HomePage setPage={setPage} setSelectedMovie={setSelectedMovie} movies={MOVIES} />}
+          {page === "home" && <HomePage setPage={setPage} setSelectedMovie={setSelectedMovie} user={user} />}
           
           {/* 3. Pass functions to other pages */}
-          {page === "movie" && selectedMovie && <MoviePage movie={selectedMovie} setPage={setPage} setSelectedShow={setSelectedShow} generateShows={generateShows} />}
+          {page === "movie" && selectedMovie && <MoviePage movie={selectedMovie} setPage={setPage} setSelectedShow={setSelectedShow} user={user} />}
           
-          {page === "seats" && selectedShow && <SeatPage show={selectedShow} setPage={setPage} setCheckoutData={setCheckoutData} generateSeats={generateSeats} />}
+          {page === "seats" && selectedShow && <SeatPage show={selectedShow} setPage={setPage} setCheckoutData={setCheckoutData} user={user} generateSeats={generateSeats} />}
           
           {page === "checkout" && <CheckoutPage data={checkoutData} setPage={setPage} addBooking={addBooking} />}
           
-          {page === "bookings" && <BookingsPage bookings={bookings} setPage={setPage} listForResale={listForResale} />}
+          {page === "bookings" && user?.role !== 'admin' && <BookingsPage bookings={bookings} setPage={setPage} listForResale={listForResale} />}
           
           {/* 4. Pass resaleListings to ResalePage */}
-          {page === "resale" && <ResalePage resaleListings={resaleListings} setPage={setPage} user={user} setCheckoutData={setCheckoutData} />}
+          {page === "resale" && user?.role !== 'admin' && <ResalePage resaleListings={resaleListings} setPage={setPage} user={user} setCheckoutData={setCheckoutData} />}
         </>
       )}
     </>
