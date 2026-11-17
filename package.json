@@ -1,15 +1,21 @@
 {
-  "name": "seatify",
-  "private": true,
+  "name": "seatify-backend",
   "version": "1.0.0",
-  "workspaces": ["frontend", "backend"],
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
-    "build": "npm run build --workspace=frontend",
-    "start": "npm run start --workspace=backend",
-    "lint": "npm run lint --workspace=frontend"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "mysql2": "^3.20.0"
   }
 }
